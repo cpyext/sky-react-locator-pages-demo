@@ -6,8 +6,8 @@ const searchConfig = {
   locale: "it",
   environment:
     import.meta.env.YEXT_PUBLIC_ACCOUNTTYPE === "SANDBOX"
-      ? Environment.PROD
-      : Environment.SANDBOX,
+      ? Environment.SANDBOX
+      : Environment.PROD,
 };
 
 export default searchConfig;
