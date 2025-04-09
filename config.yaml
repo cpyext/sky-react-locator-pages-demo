@@ -1,0 +1,18 @@
+buildConfiguration:
+  buildCommand: npm run build:local
+  installDependenciesStep:
+    command: npm install
+    requiredFiles:
+      - package.json
+      - package-lock.json
+      - .npmrc
+siteStream:
+  id: site-entity
+  fields:
+    - name
+    - c_header
+    - c_footer
+  localization:
+    locales:
+      - it
+  entityId: "810597210650527725"

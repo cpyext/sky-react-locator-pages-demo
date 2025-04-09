@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.centered-container {
+  @apply mx-auto px-2 md:px-6;
+}
+
+.section {
+  @apply mt-8 mb-16;
+}
+
+/** Customisations */
+
+/**CTA1*/
+.cta1 {
+  border: 1px solid;
+  width: max-content;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  &::hover {
+    cursor: pointer;
+  }
+}
+
+/**CTA2*/
+.cta2 {
+  border: 1px solid;
+  flex: 1;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/**CTA3*/
+.cta3 {
+  border: 1px solid;
+  width: max-content;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/**Facets Button*/
+.facetsButton {
+  border: 1px solid;
+  width: max-content;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/**Apply FAcets Button*/
+.applyButton {
+  border: 1px solid;
+  width: fit-content;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-top: 1rem;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/**Apply Facets Button*/
+.mapPin {
+  color: red;
+  height: 1rem;
+  width: 1rem;
+  &:hover {
+    color: green; /** Change this for hover color change */
+    cursor: pointer;
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+/** Chat Colors */
+.chatHeaderAndBotResponseColors {
+  background: none !important;
+  background: #027da5 !important;
+}
+
+.chatTextboxColor {
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  outline: none;
+  text-align: left;
+  font-size: 1rem;
+  &:focus {
+    border-color: #66ccff;
+    box-shadow: 0 0 0 0.2rem rgba(102, 204, 255, 0.5);
+  }
+}

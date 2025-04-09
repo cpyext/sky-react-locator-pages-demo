@@ -1,0 +1,60 @@
+{
+  "name": "pages-starter-react-locations",
+  "version": "0.0.0",
+  "description": "An example repository to help users get started with React development on Yext Pages",
+  "author": "sumo@yext.com",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "scripts": {
+    "dev": "pages dev",
+    "prod": "pages prod",
+    "build:local": "pages build",
+    "clean": "rm -rf .artifact-output .yext/ dist/ localData sites-rendered-output",
+    "features": "pages generate features"
+  },
+  "engines": {
+    "node": "^18.20.0 || >=20.2.0"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.1.0",
+    "@heroicons/react": "^2.1.4",
+    "@yext/chat-headless-react": "^0.8.0",
+    "@yext/chat-ui-react": "^0.10.2",
+    "@yext/components-tsx-geo": "^1.0.3",
+    "@yext/pages-components": "1.0.0-rc.11",
+    "@yext/search-headless-react": "^2.4.0",
+    "@yext/search-ui-react": "^1.6.0",
+    "@yext/sites-components": "1.0.0-rc.5",
+    "@yext/types": "0.1.13-alpha",
+    "classnames": "^2.5.1",
+    "font-awesome": "^4.7.0",
+    "mapbox-gl": "^3.4.0",
+    "markdown-to-jsx": "^7.4.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.2.1",
+    "react-schemaorg": "^2.0.0",
+    "react-showdown": "^2.3.1",
+    "schema-dts": "^1.1.2",
+    "tailwind-merge": "^2.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@types/mapbox-gl": "^3.1.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@yext/pages": "^1.1.1",
+    "autoprefixer": "^10.4.19",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "generate-license-file": "^3.0.1",
+    "postcss": "^8.4.38",
+    "prettier": "^3.3.2",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4"
+  }
+}
