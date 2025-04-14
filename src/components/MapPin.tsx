@@ -1,303 +1,84 @@
-import {
-  Matcher,
-  SelectableStaticFilter,
-  useSearchActions,
-  useSearchState,
-  Coordinate, 
-  Result,
-} from "@yext/search-headless-react";
-import {
-  AppliedFilters,
-  Geolocation,
-  MapboxMap,
-  Pagination,
-  ResultsCount,
-  SearchBar,
-  VerticalResults,
-  onSearchFunc,
-} from "@yext/search-ui-react";
-import { LngLat, LngLatBounds } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import * as React from "react";
-import { useEffect, useState } from "react";
-import Loader from "./Loader";
-import LocationCard from "./LocationCard";
-import MapPin from "./MapPin";
-import { useLocationsContext } from "../common/LocationsContext";
-import { IoIosClose } from "react-icons/io";
-import { FaMapMarkerAlt } from "react-icons/fa";
-import { Location } from "../types/locations";
-
-// ✅ Type for props
-
-// Type-safe facet option value
-type FacetOptionValue = string;
-
-// Fallback converter
-const getFacetLabel = (value: unknown): string => {
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return value.toString();
-  return JSON.stringify(value);
-};
-
-interface MapPinProps {
-  result: Result<Location>;
-  coordinate: Coordinate;
-  selectedLocationId: string;
-  setSelectedLocationId: (id: string) => void;
-  selectedLocationFromContext: string;
-  pinColor?: string;
-}
-type PromoBanner = {
-  url: string;
-  alternateText?: string;
-};
-
-type LocatorProps = {
-  verticalKey: string;
-  name?: string;
-  c_promoBanner?: PromoBanner;
-};
-
-const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
-  const searchActions = useSearchActions();
-  const filters = useSearchState((state) => state.filters.static);
-  const facets = useSearchState((state) => state.filters.facets);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedLocationId, setSelectedLocationId] = useState("");
-  const [showFacets, setShowFacets] = useState(false);
-  const [highlightedFacetOption, setHighlightedFacetOption] = useState<string | null>(null);
-
-  const {
-    selectedLocationId: _selectedLocationId,
-    setSelectedLocationId: _setSelectedLocationId,
-  } = useLocationsContext();
-
-  useEffect(() => {
-    if (selectedLocationId) {
-      _setSelectedLocationId(selectedLocationId);
-    }
-  }, [selectedLocationId]);
-
-  useEffect(() => {
-    searchActions.setVertical(verticalKey);
-    const queryParams = new URLSearchParams(window.location.search);
-    let q = queryParams.get("query");
-    q && searchActions.setQuery(q);
-    searchActions.executeVerticalQuery().then(() => setIsLoading(false));
-  }, []);
-
-  const handleSearch: onSearchFunc = (searchEventData) => {
-    const { query } = searchEventData;
-    searchActions.executeVerticalQuery();
-    const queryParams = new URLSearchParams(window.location.search);
-    queryParams.delete("type");
-    if (query) {
-      queryParams.set("query", query);
-    } else {
-      queryParams.delete("query");
-    }
-    history.pushState(null, "", "?" + queryParams.toString());
+import { Coordinate } from "@yext/pages-components";
+import { Result } from "@yext/search-headless-react";
+import { LngLatLike, Map, Popup } from "mapbox-gl";
+import { useEffect, useRef, useState } from "react";
+import * as ReactDOM from "react-dom/server";
+import { FaLocationPin } from "react-icons/fa6";
+import Location from "../types/locations";
+const transformToMapboxCoord = (
+  coordinate: Coordinate
+): LngLatLike | undefined => {
+  if (!coordinate.latitude || !coordinate.longitude) return;
+  return {
+    lng: coordinate.longitude,
+    lat: coordinate.latitude,
   };
+};
 
-  const onDrag = React.useCallback(
-    (center: LngLat, bounds: LngLatBounds) => {
-      const radius = center.distanceTo(bounds.getNorthEast());
-      const nonLocationFilters =
-        filters?.filter(
-          (f) =>
-            f.filter.kind !== "fieldValue" ||
-            f.filter.fieldId !== "builtin.location"
-        ) ?? [];
-      const nearFilter: SelectableStaticFilter = {
-        selected: true,
-        displayName: "Near Current Area",
-        filter: {
-          kind: "fieldValue",
-          fieldId: "builtin.location",
-          matcher: Matcher.Near,
-          value: { ...center, radius },
-        },
-      };
-      searchActions.setStaticFilters([...nonLocationFilters, nearFilter]);
-      searchActions.executeVerticalQuery();
-    },
-    [filters, searchActions]
-  );
-
-  const getColorByOption = (optionLabel: string) => {
-    const colors = ["#FF5733", "#33C3FF", "#FFC133", "#8E44AD", "#2ECC71"];
-    const index = optionLabel.length % colors.length;
-    return colors[index];
-  };
-
-
-  return (
-    <>
-      {name && (
-        <h1 className="text-4xl font-bold text-center mt-6">{name}</h1>
-      )}
-
-      <div className="centered-container">
-        <div className="flex gap-8 w-full items-center my-6">
-          <SearchBar
-            customCssClasses={{ searchBarContainer: "w-full ml-8" }}
-            placeholder="Enter an address, zip code, or city and state"
-            onSearch={handleSearch}
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-row">
-        <div className="flex flex-col w-[40%] p-4 overflow-scroll relative" style={{ height: "80vh" }}>
-          {c_promoBanner?.url && (
-            <div className="w-full mt-6">
-              <img
-                src={c_promoBanner.url}
-                alt={c_promoBanner.alternateText || name || "Promo Banner"}
-                className="w-full max-h-[400px] object-cover rounded-xl"
-              />
-            </div>
-          )}
-
-<div
-      className="cursor-pointer"
-      onClick={() => setSelectedLocationId(result.id)}
-    >
-      <FaMapMarkerAlt
-        size={28}
-        style={{
-          //color: isSelected ? "#000" : pinColor,
-          transform: "translate(-50%, -100%)",
-        }}
-      />
+const getLocationHTML = (location: Location) => {
+  const address = location.address;
+  const html = (
+    <div>
+      <p className="font-bold">{location.name || "unknown location"}</p>
+      <p>{location.address.line1}</p>
+      <p>{`${address.city}, ${address.region}, ${address.postalCode}`}</p>
     </div>
   );
 
+  return ReactDOM.renderToString(html);
+};
 
-          {import.meta.env.YEXT_PUBLIC_ARE_FACETS_ENABLED === "true" && (
-            <>
-              <div
-                className="text-center bg-gray-200 rounded-lg py-2 px-4 mt-4 cursor-pointer"
-                onClick={() => setShowFacets(!showFacets)}
-              >
-                Filters & Features
-              </div>
-              {showFacets && (
-                <div className="absolute inset-0 bg-white h-[95vh] px-4 overflow-y-scroll">
-                  <IoIosClose
-                    onClick={() => setShowFacets(false)}
-                    className="ml-auto h-8 w-8 mr-4 hover:cursor-pointer hover:border"
-                  />
+export interface MapPinProps {
+  mapbox: Map;
+  result: Result<Location>;
+  selectedLocationId: string;
+  selectedLocationFromContext: string;
+  setSelectedLocationId: (value: string) => void;
+}
 
-                  <h2 className="text-xl font-semibold mb-4">Filters</h2>
-                  <div className="flex flex-col gap-6">
-                    {facets?.map((facet, index) => (
-                      <div key={index}>
-                        <h3 className="text-lg font-bold mb-2">{facet.displayName}</h3>
-                        <div className="grid grid-cols-3 gap-3">
-                          {facet.options.map((option, i) => {
-                            const label = getFacetLabel(option.displayName || option.value);
-                            const color = getColorByOption(label);
-                            const isSelected = option.selected;
-                            return (
-                              <div
-                                key={i}
-                                onClick={() => {
-                                  searchActions.setFacetOption(facet.fieldId, option, !isSelected);
-                                  setHighlightedFacetOption(label);
-                                  searchActions.executeVerticalQuery();
-                                }}
-                                className={`flex flex-col items-center border rounded-lg p-3 cursor-pointer hover:opacity-90 ${isSelected ? "ring-2 ring-offset-2" : ""}`}
-                                style={{ borderColor: color }}
-                              >
-                                <div
-                                  className="w-8 h-8 rounded-full mb-2"
-                                  style={{ backgroundColor: color }}
-                                />
-                                <span className="text-sm text-center">{label}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+const MapPin = ({
+  mapbox,
+  result,
+  selectedLocationId,
+  selectedLocationFromContext,
+  setSelectedLocationId,
+}: MapPinProps) => {
+  const location = result.rawData;
+  const [isActive, setIsActive] = useState<boolean>();
+  const popupRef = useRef(new Popup({ offset: 15 }));
+  useEffect(() => {
+    if (selectedLocationFromContext) {
+      document
+        .querySelectorAll(".mapboxgl-popup")
+        .forEach((item) => item.remove());
 
-                  <div className="flex flex-row gap-4 mt-8">
-                    <div className="applyButton" onClick={() => setShowFacets(false)}>Apply</div>
-                    <div
-                      className="hover:cursor-pointer px-4 py-1 mt-4 text-[#027da5] w-fit hover:underline"
-                      onClick={() => setShowFacets(false)}
-                    >
-                      Cancel
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+      setIsActive(selectedLocationFromContext === location.id);
+    }
+  }, [selectedLocationFromContext, location.id]);
 
-          <div>
-            <ResultsCount />
-            <AppliedFilters />
-            {isLoading ? (
-              <div className="h-screen">
-                <Loader />
-              </div>
-            ) : (
-              <VerticalResults
-                CardComponent={LocationCard}
-                customCssClasses={{
-                  verticalResultsContainer: "flex flex-col gap-4 bg-white",
-                }}
-              />
-            )}
-            <div className="mt-4">
-              <Pagination />
-              <Geolocation
-                customCssClasses={{
-                  iconContainer: "none",
-                  geolocationContainer: "flex flex-col lg:flex-col",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="w-[60%] h-[80vh]">
-          <MapboxMap
-            onDrag={onDrag}
-            mapboxOptions={{ zoom: 20 }}
-            mapboxAccessToken={import.meta.env.YEXT_PUBLIC_MAP_API_KEY || ""}
-            PinComponent={(props) => (
-              <MapPin
-                {...props}
-                pinColor={
-                  highlightedFacetOption
-                    ? getColorByOption(highlightedFacetOption)
-                    : undefined
-                }
-                selectedLocationId={selectedLocationId}
-                setSelectedLocationId={setSelectedLocationId}
-                selectedLocationFromContext={_selectedLocationId}
-              />
-            )}
-          />
-        </div>
-      </div>
-    </>
+  useEffect(() => {
+    if (isActive && location.yextDisplayCoordinate) {
+      const mapboxCoordinate = transformToMapboxCoord(
+        location.yextDisplayCoordinate
+      );
+      if (mapboxCoordinate) {
+        popupRef.current
+          .setLngLat(mapboxCoordinate)
+          .setHTML(getLocationHTML(location))
+          .addTo(mapbox);
+      }
+    } else {
+      popupRef.current.remove();
+    }
+  }, [isActive, mapbox, location]);
+  const handleClick = () => {
+    setSelectedLocationId(isActive ? null : location.id);
+  };
+  return (
+    <button onClick={handleClick}>
+      <FaLocationPin className={`mapPin ${isActive ? "h-8 w-8" : "h-4 w-4"}`} />
+    </button>
   );
 };
 
 export default MapPin;
-
-const createPopUp1 = (data: any) => {
-  return (
-    <div>
-      <h3 className="uppercase bembo text-sm font-normal mb-2.5">${data.name}</h3>
-    </div>
-  );
-};
-
-

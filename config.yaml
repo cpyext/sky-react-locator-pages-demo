@@ -14,5 +14,6 @@ siteStream:
     - c_footer
   localization:
     locales:
-      - :["en", "it"]
+      - it
+      - en
   entityId: "810597210650527725"

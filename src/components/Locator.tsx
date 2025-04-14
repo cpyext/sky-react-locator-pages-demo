@@ -77,13 +77,6 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
     history.pushState(null, "", "?" + queryParams.toString());
   };
 
-
-
-  const getLabelString = (label: string | number | boolean | object): string => {
-    if (typeof label === "string") return label;
-    if (typeof label === "number" || typeof label === "boolean") return label.toString();
-    return JSON.stringify(label);
-  };
   const onDrag = React.useCallback(
     (center: LngLat, bounds: LngLatBounds) => {
       const radius = center.distanceTo(bounds.getNorthEast());
@@ -114,8 +107,6 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
     const index = optionLabel.length % colors.length;
     return colors[index];
   };
-  
-
 
   return (
     <>
@@ -162,88 +153,31 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
 
                   <h2 className="text-xl font-semibold mb-4">Filters</h2>
                   <div className="flex flex-col gap-6">
-                    {/* {facets?.map((facet, index) => (
+                    {facets?.map((facet, index) => (
                       <div key={index}>
                         <h3 className="text-lg font-bold mb-2">{facet.displayName}</h3>
                         <div className="grid grid-cols-3 gap-3">
                           {facet.options.map((option, i) => {
-                            
-                            const label = getLabelString(option.displayName || option.value);
-                            const color = getColorByOption(label); */}
-
-
-
-
-{facets?.map((facet, index) => (
-  <div key={index}>
-    <h3 className="text-lg font-bold mb-2">{facet.displayName}</h3>
-    <div className="grid grid-cols-3 gap-3">
-      {facet.options.map((option, i) => {
-        // ✅ Convert the label safely to a string
-        const label =
-          typeof option.displayName === "string"
-            ? option.displayName
-            : typeof option.value === "string"
-            ? option.value
-            : JSON.stringify(option.value);
-
-        // ✅ Determine color and selection status
-        const color = getColorByOption(label);
-        const isSelected = option.selected;
-
-                            // return (
-                            //   <div
-                            //     key={i}
-                            //     onClick={() => {
-                            //       searchActions.setFacetOption(facet.fieldId, option, !isSelected);
-                            //       setHighlightedFacetOption(option.displayName || option.value);
-                            //       searchActions.executeVerticalQuery();
-                            //     }}
-                            //     className={`flex flex-col items-center border rounded-lg p-3 cursor-pointer hover:opacity-90 ${isSelected ? "ring-2 ring-offset-2" : ""}`}
-                            //     style={{ borderColor: color }}
-                            //   >
-                            //     <div
-                            //       className="w-8 h-8 rounded-full mb-2"
-                            //       style={{ backgroundColor: color }}
-                            //     />
-                            //     <span className="text-sm text-center">{option.displayName || option.value}</span>
-                            //   </div>
-                            // );
+                            const color = getColorByOption(option.displayName || option.value);
+                            const isSelected = option.selected;
                             return (
                               <div
                                 key={i}
                                 onClick={() => {
                                   searchActions.setFacetOption(facet.fieldId, option, !isSelected);
-                                  setHighlightedFacetOption(label);
+                                  setHighlightedFacetOption(option.displayName || option.value);
                                   searchActions.executeVerticalQuery();
                                 }}
-                                className={`flex flex-col items-center border rounded-lg p-3 cursor-pointer hover:opacity-90 ${
-                                  isSelected ? "ring-2 ring-offset-2" : ""
-                                }`}
+                                className={`flex flex-col items-center border rounded-lg p-3 cursor-pointer hover:opacity-90 ${isSelected ? "ring-2 ring-offset-2" : ""}`}
                                 style={{ borderColor: color }}
                               >
                                 <div
                                   className="w-8 h-8 rounded-full mb-2"
                                   style={{ backgroundColor: color }}
                                 />
-                                <span className="text-sm text-center">{label}</span>
+                                <span className="text-sm text-center">{option.displayName || option.value}</span>
                               </div>
                             );
-
-                            
-
-
-
-
-
-
-
-
-
-
-
-
-
                           })}
                         </div>
                       </div>
@@ -301,7 +235,7 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
         </div>
 
         <div className="w-[60%] h-[80vh]">
-          {/* <MapboxMap
+          <MapboxMap
             onDrag={onDrag}
             mapboxOptions={{ zoom: 20 }}
             mapboxAccessToken={import.meta.env.YEXT_PUBLIC_MAP_API_KEY || ""}
@@ -318,7 +252,7 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
                 selectedLocationFromContext={_selectedLocationId}
               />
             )}
-          /> */}
+          />
         </div>
       </div>
     </>
