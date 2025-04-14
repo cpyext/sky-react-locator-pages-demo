@@ -43,6 +43,7 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLocationId, setSelectedLocationId] = useState("");
   const [showFacets, setShowFacets] = useState(false);
+  const [highlightedFacetOption, setHighlightedFacetOption] = useState<string | null>(null);
 
   const {
     selectedLocationId: _selectedLocationId,
@@ -101,6 +102,12 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
     [filters, searchActions]
   );
 
+  const getColorByOption = (optionLabel: string) => {
+    const colors = ["#FF5733", "#33C3FF", "#FFC133", "#8E44AD", "#2ECC71"];
+    const index = optionLabel.length % colors.length;
+    return colors[index];
+  };
+
   return (
     <>
       {name && (
@@ -145,30 +152,39 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
                   />
 
                   <h2 className="text-xl font-semibold mb-4">Filters</h2>
-                  <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="flex flex-col gap-6">
                     {facets?.map((facet, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-col items-center p-3 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100"
-                        onClick={() => {
-                          const option = facet.options[0];
-                          if (option) {
-                            searchActions.setFacetOption(facet.fieldId, option, !option.selected);
-                            searchActions.executeVerticalQuery();
-                          }
-                        }}
-                      >
-                        <img
-                          src={`/icons/${facet.displayName.toLowerCase().replace(/\s/g, "-")}.svg`}
-                          alt={facet.displayName}
-                          className="w-8 h-8 mb-2"
-                        />
-                        <span className="text-sm text-center">{facet.displayName}</span>
+                      <div key={index}>
+                        <h3 className="text-lg font-bold mb-2">{facet.displayName}</h3>
+                        <div className="grid grid-cols-3 gap-3">
+                          {facet.options.map((option, i) => {
+                            const color = getColorByOption(option.displayName || option.value);
+                            const isSelected = option.selected;
+                            return (
+                              <div
+                                key={i}
+                                onClick={() => {
+                                  searchActions.setFacetOption(facet.fieldId, option, !isSelected);
+                                  setHighlightedFacetOption(option.displayName || option.value);
+                                  searchActions.executeVerticalQuery();
+                                }}
+                                className={`flex flex-col items-center border rounded-lg p-3 cursor-pointer hover:opacity-90 ${isSelected ? "ring-2 ring-offset-2" : ""}`}
+                                style={{ borderColor: color }}
+                              >
+                                <div
+                                  className="w-8 h-8 rounded-full mb-2"
+                                  style={{ backgroundColor: color }}
+                                />
+                                <span className="text-sm text-center">{option.displayName || option.value}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex flex-row gap-4 mb-8">
+                  <div className="flex flex-row gap-4 mt-8">
                     <div className="applyButton" onClick={() => setShowFacets(false)}>Apply</div>
                     <div
                       className="hover:cursor-pointer px-4 py-1 mt-4 text-[#027da5] w-fit hover:underline"
@@ -191,7 +207,16 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
               </div>
             ) : (
               <VerticalResults
-                CardComponent={LocationCard}
+                CardComponent={(props) => (
+                  <LocationCard
+                    {...props}
+                    highlightColor={
+                      highlightedFacetOption
+                        ? getColorByOption(highlightedFacetOption)
+                        : undefined
+                    }
+                  />
+                )}
                 customCssClasses={{
                   verticalResultsContainer: "flex flex-col gap-4 bg-white",
                 }}
@@ -217,6 +242,11 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
             PinComponent={(props) => (
               <MapPin
                 {...props}
+                pinColor={
+                  highlightedFacetOption
+                    ? getColorByOption(highlightedFacetOption)
+                    : undefined
+                }
                 selectedLocationId={selectedLocationId}
                 setSelectedLocationId={setSelectedLocationId}
                 selectedLocationFromContext={_selectedLocationId}
