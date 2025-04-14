@@ -235,7 +235,7 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
         </div>
 
         <div className="w-[60%] h-[80vh]">
-          <MapboxMap
+          {/* <MapboxMap
             onDrag={onDrag}
             mapboxOptions={{ zoom: 20 }}
             mapboxAccessToken={import.meta.env.YEXT_PUBLIC_MAP_API_KEY || ""}
@@ -252,7 +252,7 @@ const Locator = ({ verticalKey, name, c_promoBanner }: LocatorProps) => {
                 selectedLocationFromContext={_selectedLocationId}
               />
             )}
-          />
+          /> */}
         </div>
       </div>
     </>

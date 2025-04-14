@@ -24,8 +24,8 @@ export interface Image {
 
 const Carousel = (props: any) => {
   const { data } = props;
- 
-  //@ts-ignore
+
+  // @ts-ignore
   const SliderComponent = Slider.default || Slider;
 
   const settings = {
@@ -38,44 +38,36 @@ const Carousel = (props: any) => {
     autoplay: true,
     autoplaySpeed: 3000,
     responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
+      { breakpoint: 1024, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+      { breakpoint: 600, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+      { breakpoint: 480, settings: { slidesToShow: 1, slidesToScroll: 1 } },
     ],
   };
+
   return (
     <SliderComponent {...settings}>
       {data &&
-        data.map((item: Root2, index: any) => (
+        data.map((item: Root2, index: number) => (
           <a
             href={item.c_bannerImage.clickthroughUrl}
             key={index}
-            className="flex flex-col gap-2 "
+            className="relative block w-full"
           >
+            {/* ✅ Overlay Rich Text like MasterChef banner */}
+            <div className="absolute inset-0 z-10 flex items-center justify-center px-6 py-4">
+              <div className="text-gray-100 font-light  font-style: italic text-center mt-4 text-xl md:text-xl lg:text-xl drop-shadow-lg leading-snug w-3/4 max-w-[600px]">
+                <LexicalRichText
+                  serializedAST={JSON.stringify(
+                    item.richTextDescriptionV2.json
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* ✅ Fullscreen background image */}
             <Image
               image={item.c_bannerImage}
-              className="!max-w-none !w-full !h-full"
-            />
-            <LexicalRichText
-              serializedAST={JSON.stringify(item.richTextDescriptionV2.json)}
+              className="!w-full !h-full object-cover max-h-[1000px]"
             />
           </a>
         ))}

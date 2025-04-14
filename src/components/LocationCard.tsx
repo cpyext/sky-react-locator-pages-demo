@@ -7,7 +7,8 @@ import Location from "../types/locations";
 import { HoursStatus } from "@yext/pages-components";
 const LocationCard = ({ result }: CardProps<Location>) => {
   const { name, id, distance } = result;
-  const { address, hours, timezone, mainPhone, c_tertiaryCTA } = result.rawData;
+  const { address, hours, timezone, mainPhone, c_tertiaryCTA, slug } =
+    result.rawData;
   const { selectedLocationId, setSelectedLocationId } = useLocationsContext();
   const getDirectionsUrl = (addr?: any) => {
     const region = addr.region ? ` ${addr.region}` : ``;
@@ -37,7 +38,9 @@ const LocationCard = ({ result }: CardProps<Location>) => {
       <div className="  px-4 py-4 flex gap-2 items-center justify-between">
         <div className="flex  text-sm w-full gap-2 justify-between text-black">
           <div className="flex w-full !gap-0 flex-col justify-between">
-            <div className="font-bold text-base text-[#141414]">{name}</div>
+            <div className="font-bold text-base text-[#141414]">
+              <a href={`/${slug}`}>{name}</a>
+            </div>
             <div className="flex flex-col gap-1">
               <div className="flex gap-2 items-center text-sm">
                 <div>
