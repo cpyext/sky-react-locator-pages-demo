@@ -34,6 +34,7 @@ export interface MapPinProps {
   selectedLocationId: string;
   selectedLocationFromContext: string;
   setSelectedLocationId: (value: string) => void;
+  pinColor?: string;
 }
 
 const MapPin = ({
@@ -42,7 +43,10 @@ const MapPin = ({
   selectedLocationId,
   selectedLocationFromContext,
   setSelectedLocationId,
+  pinColor,
 }: MapPinProps) => {
+  console.log(pinColor);
+
   const location = result.rawData;
   const [isActive, setIsActive] = useState<boolean>();
   const popupRef = useRef(new Popup({ offset: 15 }));
@@ -76,7 +80,9 @@ const MapPin = ({
   };
   return (
     <button onClick={handleClick}>
-      <FaLocationPin className={`mapPin ${isActive ? "h-8 w-8" : "h-4 w-4"}`} />
+      <FaLocationPin
+        className={`mapPin ${pinColor ? `text-[${pinColor}]` : `text-[#ff0000]`} ${isActive ? "h-8 w-8" : "h-4 w-4"}`}
+      />
     </button>
   );
 };

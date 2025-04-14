@@ -80,8 +80,7 @@
 
 /**Apply Facets Button*/
 .mapPin {
-  color: red;
-  height: 1rem;
+   height: 1rem;
   width: 1rem;
   &:hover {
     color: green; /** Change this for hover color change */
